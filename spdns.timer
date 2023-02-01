@@ -1,0 +1,16 @@
+#
+#	spdns update set to each half hour
+#
+#       This file needs to be on /etc/systemd/system/
+#
+
+[Unit]
+Description=Schedule spdns update
+Requires=spdns.service
+
+[Timer]
+Unit=spdns.service
+OnCalendar=*:0/30
+
+[Install]
+WantedBy=timers.target

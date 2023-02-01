@@ -1,0 +1,16 @@
+#
+#	Run the script that ends up logging thermobeacons
+#
+#	This file needs to be on /etc/systemd/system/
+#
+[Unit]
+Description=spdns update
+Wants=spdns.timer
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/run-spdns
+
+[Install]
+WantedBy=multi-user.target
+
