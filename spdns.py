@@ -58,7 +58,13 @@ ipfile.close()
 # Now find out what IP we currently have
 
 print("Retrieving external IP address")
-ip = get("https://api.ipify.org").content.decode("utf8")
+try:
+    ip = get("https://api.ipify.org").content.decode("utf8")
+except:
+    print("Failed to get IP address")
+    quit()
+
+
 
 # If the IP has changed update our records
 # If not there is nothing at all to do
