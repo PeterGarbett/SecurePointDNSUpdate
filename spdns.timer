@@ -10,7 +10,8 @@ Requires=spdns.service
 
 [Timer]
 Unit=spdns.service
-OnCalendar=*:0/30
+OnCalendar=*:0/17
+
 
 [Install]
 WantedBy=timers.target
