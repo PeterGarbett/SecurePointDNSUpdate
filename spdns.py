@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" Update SecurePointDNS.  File should be on /usr/local/bin/ """
+"""Update SecurePointDNS.  File should be on /usr/local/bin/"""
 
 import os
 import sys
@@ -17,7 +17,7 @@ def update_spdns_record():
     """Find public ip and if its changed update spdns dns record"""
 
     # Load config file
-    print("Loading SecurePointDNS config")
+    # print("Loading SecurePointDNS config")
 
     # Config file is a single line with three parameters separated by a single space.
     # URL token IPFILE
@@ -60,7 +60,7 @@ def update_spdns_record():
 
     # Now find out what IP we currently have
 
-    print("Retrieving external IP address")
+    # print("Retrieving external IP address")
     try:
         public_ip = get("https://api.ipify.org").content.decode("utf8")
     except:
@@ -76,7 +76,7 @@ def update_spdns_record():
         ipfile.write(public_ip)
         ipfile.close()
     else:
-        print("IP unchanged, quit")
+        #    print("IP unchanged, quit")
         sys.exit()
 
     # The IP has changed so need to update spdns
@@ -91,7 +91,7 @@ def update_spdns_record():
     data = {"hostname": tokens[0], "myip": public_ip}
 
     if TRIAL_RUN:
-        print(" SecurePointDNS update suppressed")
+        print("SecurePointDNS update suppressed")
         response = "good"
     else:
         resp = requests.get(
