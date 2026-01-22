@@ -12,7 +12,7 @@ from requests import get
 #   Debug ensuring we don't pester the dns service
 #
 
-TRIAL_RUN = True
+TRIAL_RUN = False
 
 
 def update_spdns_record():
