@@ -9,6 +9,7 @@ Wants=spdns.timer
 
 [Service]
 Type=oneshot
+User=embed
 ExecStart=/home/embed/SecurePointDNSUpdate/spdns.py 
 
 [Install]
