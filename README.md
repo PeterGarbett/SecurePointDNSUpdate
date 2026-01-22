@@ -5,18 +5,15 @@ Scripts to update SecurePointDNS dns service to current public IP
 Files:
 
 README.md                   This file
-example-spdns-config.conf   Example configuration file (place on /etc/)
+spdns.conf   	            Example configuration file (modify and place on /etc/)
 spdns.py                    Python to update spdyn when necessary
-run-spdns                   Entry point for update
 spdns.service               systemd service file
 spdns.timer                 systemd timer file
 
-There needs to be a file spdns-config.conf derived from the
-example file example-spdns-config.conf and placed on /etc
 
 The format is:
 
-<name>.spdns.org xxxx-yyyy-zzzz <file location>/ipfile.txt
+<name>.spdns.org xxxx-yyyy-zzzz <file location>/ipfile.txt script-to-run-on-ip-change
 
 Account setup and token generation from https://www.spdyn.de/
 

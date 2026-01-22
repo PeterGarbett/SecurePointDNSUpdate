@@ -2,29 +2,29 @@
 """Update SecurePointDNS.  File should be on /usr/local/bin/"""
 
 import os
+import os.path
 import sys
 import requests
 from requests import get
+
 
 #
 #   Debug ensuring we don't pester the dns service
 #
 
-TRIAL_RUN = False
+TRIAL_RUN = True
 
 
 def update_spdns_record():
     """Find public ip and if its changed update spdns dns record"""
 
-    # Load config file
+    # Load config file (this would arguably be better down using json)
     # print("Loading SecurePointDNS config")
 
     # Config file is a single line with three parameters separated by a single space.
     # URL token IPFILE
 
-    config_file = open(
-        os.path.expanduser("/etc/spdns-config.conf"), "r", encoding="ascii"
-    )
+    config_file = open(os.path.expanduser("/etc/spdns.conf"), "r", encoding="ascii")
     contents = config_file.readlines()
     config_file.close()
 
@@ -41,7 +41,16 @@ def update_spdns_record():
 
     # URL=tokens[0] token=tokens[2] IPFILE=tokens[2]
 
-    ipfilename = tokens[2]
+    try:
+        ipfilename = tokens[2]
+    except:
+        print("ERROR in config file", tokens)
+        sys.exit()
+
+    try:
+        script = tokens[3]
+    except:
+        script = ""
 
     # Make sure there is a file to record the IP into
 
@@ -75,6 +84,10 @@ def update_spdns_record():
         ipfile = open(ipfilename, "w", encoding="ascii")
         ipfile.write(public_ip)
         ipfile.close()
+
+        if os.path.exists(script):
+            os.system(script)
+
     else:
         #    print("IP unchanged, quit")
         sys.exit()
