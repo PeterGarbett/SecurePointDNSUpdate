@@ -7,12 +7,67 @@ import sys
 import requests
 from requests import get
 
-
 #
 #   Debug ensuring we don't pester the dns service
 #
 
 TRIAL_RUN = False
+
+
+#
+#   Debug ensuring we don't pester the dns service
+#
+
+TRIAL_RUN = True
+
+
+def spdns_ip_update(public_ip, site, ipfilename, tokens):
+
+    print("IP: " + str(public_ip))
+    print(
+        "Updating SecurePointDNS with hostname " + site + ", token " + str(ipfilename)
+    )
+    data = {"hostname": tokens[0], "myip": public_ip}
+    auth = (tokens[0], tokens[1])
+
+    if TRIAL_RUN:
+        print("SecurePointDNS update suppressed")
+        response = "good"
+    else:
+        resp = requests.get(
+            "https://update.spdyn.de/nic/update",
+            params=data,
+            auth=(tokens[0], tokens[1]),
+        )
+        response = resp.text.split(" ")[0]
+
+    print("response:", response)
+
+    rescodes = {
+        "abuse": "The host is locked because of too many failed attempts.",
+        "badauth": "The given username / token was not accepted",
+        "!yours": "The host could not be managed by your account",
+        "nochg": "Your IP has not changed since the last update",
+        "good": "IP of " + site + " was updated to " + public_ip,
+        "notfqdn": "The host is not an FQDN",
+        "nohost": "The host does not exist or was deleted",
+        "fatal": "The host was manually deactivated",
+    }
+
+    # Decode the response
+
+    if response in rescodes:
+        print("Response: " + rescodes[response])
+    else:
+        print("Unknown response, " + response)
+
+    # If the update failed, make our idea of what the
+    # ip is 'wrong' so it will attempt to reset next time
+
+    if response == "good" or response == "nochg":
+        return True
+
+    return False
 
 
 def update_spdns_record():
@@ -96,60 +151,18 @@ def update_spdns_record():
 
         if os.path.exists(script):
             os.system(script)
-
     else:
         #    print("IP unchanged, quit")
         sys.exit()
 
     # The IP has changed so need to update spdns
 
-    print("IP: " + str(public_ip))
-    print(
-        "Updating SecurePointDNS with hostname " + site + ", token " + str(ipfilename)
-    )
-    data = {"hostname": tokens[0], "myip": public_ip}
-    auth = (tokens[0], tokens[1])
+    success = spdns_ip_update(public_ip, site, ipfilename, tokens)
 
-    if TRIAL_RUN:
-        print("SecurePointDNS update suppressed")
-        response = "good"
-    else:
-        resp = requests.get(
-            "https://update.spdyn.de/nic/update",
-            params=data,
-            auth=(tokens[0], tokens[1]),
-        )
-        response = resp.text.split(" ")[0]
-
-    print("response:", response)
-
-    rescodes = {
-        "abuse": "The host is locked because of too many failed attempts.",
-        "badauth": "The given username / token was not accepted",
-        "!yours": "The host could not be managed by your account",
-        "nochg": "Your IP has not changed since the last update",
-        "good": "IP of " + site + " was updated to " + public_ip,
-        "notfqdn": "The host is not an FQDN",
-        "nohost": "The host does not exist or was deleted",
-        "fatal": "The host was manually deactivated",
-    }
-
-    # Decode the response
-
-    if response in rescodes:
-        print("Response: " + rescodes[response])
-    else:
-        print("Unknown response, " + response)
-
-    # If the update failed, make our idea of what the
-    # ip is 'wrong' so it will attempt to reset next time
-
-    if response == "good" or response == "nochg":
-        sys.exit()
-
-    ipfile = open(ipfilename, "w", encoding="ascii")
-    ipfile.write("ip update failed")
-    ipfile.close()
+    if not success:
+        ipfile = open(ipfilename, "w", encoding="ascii")
+        ipfile.write("ip update failed")
+        ipfile.close()
 
 
 if __name__ == "__main__":
