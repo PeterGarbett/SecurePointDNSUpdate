@@ -42,6 +42,7 @@ def update_spdns_record():
     # URL=tokens[0] token=tokens[2] IPFILE=tokens[2]
 
     try:
+        site = tokens[0]
         ipfilename = tokens[2]
     except:
         print("ERROR in config file", tokens)
@@ -58,14 +59,21 @@ def update_spdns_record():
         ipfile = open(ipfilename, "r", encoding="ascii")
     except FileNotFoundError:
         ipfile = open(ipfilename, "w", encoding="ascii")
-        ipfile.write("no ip")
+        ipfile.write("Unknown")
         ipfile.close()
 
     # Retrieve what we think the current IP is
+    try:
 
-    ipfile = open(ipfilename, "r", encoding="ascii")
-    pubip = ipfile.readline()
-    ipfile.close()
+        ipfile = open(ipfilename, "r", encoding="ascii")
+        ipdata = ipfile.readline()
+        ip_and_site = ipdata.strip().split(" ")
+        pubip = ip_and_site[0]
+        print("IP from file:", pubip, " for ", site)
+        ipfile.close()
+    except Exception as err:
+        print("ERROR in IP file", err)
+        pubip = "Unknown"
 
     # Now find out what IP we currently have
 
@@ -82,7 +90,8 @@ def update_spdns_record():
     if pubip != public_ip:
         print("IP changed, update IP file")
         ipfile = open(ipfilename, "w", encoding="ascii")
-        ipfile.write(public_ip)
+        line = public_ip + " " + site
+        ipfile.write(line)
         ipfile.close()
 
         if os.path.exists(script):
@@ -96,12 +105,10 @@ def update_spdns_record():
 
     print("IP: " + str(public_ip))
     print(
-        "Updating SecurePointDNS with hostname "
-        + str(tokens[0])
-        + ", token "
-        + str(tokens[1])
+        "Updating SecurePointDNS with hostname " + site + ", token " + str(ipfilename)
     )
     data = {"hostname": tokens[0], "myip": public_ip}
+    auth = (tokens[0], tokens[1])
 
     if TRIAL_RUN:
         print("SecurePointDNS update suppressed")
@@ -121,7 +128,7 @@ def update_spdns_record():
         "badauth": "The given username / token was not accepted",
         "!yours": "The host could not be managed by your account",
         "nochg": "Your IP has not changed since the last update",
-        "good": "IP of " + tokens[0] + " was updated to " + public_ip,
+        "good": "IP of " + site + " was updated to " + public_ip,
         "notfqdn": "The host is not an FQDN",
         "nohost": "The host does not exist or was deleted",
         "fatal": "The host was manually deactivated",
