@@ -1,11 +1,12 @@
 #!/usr/bin/python3
-"""Update SecurePointDNS.  File should be on /usr/local/bin/"""
+"""Update SecurePointDNS."""
 
 import os
 import os.path
 import sys
 import requests
 from requests import get
+import dns.resolver
 
 #
 #   Debug ensuring we don't pester the dns service
@@ -13,6 +14,18 @@ from requests import get
 
 TRIAL_RUN = False
 
+
+def name_to_ip(name):
+    """Find what ip address the nameservers have"""
+    try:
+        answers = dns.resolver.resolve(name, "A")
+        for rdata in answers:
+            ip = rdata.address
+    except dns.resolver.NXDOMAIN:
+        # print("Domain does not exist.")
+        ip = ""
+
+    return ip
 
 
 def spdns_ip_update(public_ip, site, ipfilename, tokens):
@@ -146,8 +159,11 @@ def update_spdns_record():
         if os.path.exists(script):
             os.system(script)
     else:
-        #    print("IP unchanged, quit")
-        sys.exit()
+        address = name_to_ip(site)
+        # print("nameservers return:",address," for ",site)
+        if address == public_ip:
+            print("IP unchanged, quit")
+            sys.exit()
 
     # The IP has changed so need to update spdns
 
