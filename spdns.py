@@ -14,12 +14,6 @@ from requests import get
 TRIAL_RUN = False
 
 
-#
-#   Debug ensuring we don't pester the dns service
-#
-
-TRIAL_RUN = True
-
 
 def spdns_ip_update(public_ip, site, ipfilename, tokens):
 
