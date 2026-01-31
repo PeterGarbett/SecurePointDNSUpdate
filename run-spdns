@@ -1,8 +1,0 @@
-#!/bin/bash 
-
-#Systemd entry point.  Used to discard most of the output
-
-logStr=$(echo $(/usr/local/bin/spdns.py  2> /dev/null))
-
-echo  $logStr
-
