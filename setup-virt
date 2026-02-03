@@ -1,0 +1,8 @@
+#!/bin/bash
+
+virtualenv .
+source ./bin/activate
+
+pip install dnspython   
+pip install requests
+
