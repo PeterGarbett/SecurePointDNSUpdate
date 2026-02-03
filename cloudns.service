@@ -1,0 +1,16 @@
+#
+#	cloudns service
+#
+#
+[Unit]
+Description=cloudns update
+Wants=cloudns.timer
+
+[Service]
+Type=oneshot
+User=embed
+ExecStart=/home/embed/SecurePointDNSUpdate/bin/python3 /home/embed/SecurePointDNSUpdate/spdns.py "cloudns-url"
+
+[Install]
+WantedBy=multi-user.target
+

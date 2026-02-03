@@ -1,0 +1,16 @@
+#
+#	cloudns update set to each half hour
+#
+#
+
+[Unit]
+Description=Schedule cloudns update
+Requires=cloudns.service
+
+[Timer]
+Unit=spdns.service
+OnCalendar=*:0/17
+
+
+[Install]
+WantedBy=timers.target
